@@ -19,23 +19,38 @@
 package com.dunctebot.twitch;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
+import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 
 public class Main {
-    private Main() {
-        final OAuth2Credential chatCredential = new OAuth2Credential("twitch", "oAuthTokenHere");
+    private final TwitchClient client;
 
-        final TwitchClient twitchClient = TwitchClientBuilder.builder()
+    private Main() {
+        final OAuth2Credential chatCredential = new OAuth2Credential("twitch", System.getenv("OAUTH_TOKEN"));
+
+        this.client = TwitchClientBuilder.builder()
             .withDefaultAuthToken(chatCredential)
-            .withClientId("client id")
+            .withClientId(System.getenv("CLIENT_ID"))
             .withEnableTMI(true)
             .withEnableChat(true)
             .withChatAccount(chatCredential)
             .build();
+
+        final EventHandler eventHandler = new EventHandler();
+        this.client.getEventManager()
+            .getEventHandler(SimpleEventHandler.class)
+            .registerListener(eventHandler);
+
+        // we need to join all channels
+        this.client.getChat().joinChannel("duncte123");
     }
 
     public static void main(String[] args) {
-        //
+        new Main();
+    }
+
+    public TwitchClient getClient() {
+        return this.client;
     }
 }
