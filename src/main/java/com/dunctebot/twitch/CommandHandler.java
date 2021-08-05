@@ -31,8 +31,11 @@ public class CommandHandler {
 
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
-    public CommandHandler() {
-        this.addCommand(new RaffleCommand());
+    public CommandHandler(Main main) {
+        final RaffleCommand raffleCommand = new RaffleCommand();
+
+        this.addCommand(raffleCommand);
+        this.addCommand(new RaffleCommand.JoinCommand(raffleCommand));
     }
 
     private void addCommand(AbstractCommand cmd) {

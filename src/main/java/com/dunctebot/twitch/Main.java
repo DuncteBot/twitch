@@ -22,6 +22,7 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
+import org.slf4j.LoggerFactory;
 
 public class Main {
     private final TwitchClient client;
@@ -37,7 +38,7 @@ public class Main {
             .withChatAccount(chatCredential)
             .build();
 
-        final EventHandler eventHandler = new EventHandler();
+        final EventHandler eventHandler = new EventHandler(this);
         this.client.getEventManager()
             .getEventHandler(SimpleEventHandler.class)
             .registerListener(eventHandler);
@@ -47,6 +48,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        LoggerFactory.getLogger(Main.class).info("Booting bot");
+
         new Main();
     }
 

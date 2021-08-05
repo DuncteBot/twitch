@@ -23,7 +23,13 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 
 public class EventHandler {
 
-    private final CommandHandler commandHandler = new CommandHandler();
+    private final Main main;
+    private final CommandHandler commandHandler;
+
+    public EventHandler(Main main) {
+        this.main = main;
+        this.commandHandler = new CommandHandler(main);
+    }
 
     @EventSubscriber
     public void printChannelMessage(ChannelMessageEvent event) {
