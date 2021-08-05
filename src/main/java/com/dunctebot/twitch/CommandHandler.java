@@ -18,6 +18,8 @@
 
 package com.dunctebot.twitch;
 
+import com.dunctebot.twitch.commands.CuteCommand;
+import com.dunctebot.twitch.commands.HugCommand;
 import com.dunctebot.twitch.commands.RaffleCommand;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +34,9 @@ public class CommandHandler {
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
     public CommandHandler(Main main) {
+        this.addCommand(new CuteCommand());
+        this.addCommand(new HugCommand());
         final RaffleCommand raffleCommand = new RaffleCommand();
-
         this.addCommand(raffleCommand);
         this.addCommand(new RaffleCommand.JoinCommand(raffleCommand));
     }
