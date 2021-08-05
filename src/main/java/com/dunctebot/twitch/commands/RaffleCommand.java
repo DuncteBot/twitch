@@ -54,11 +54,11 @@ public class RaffleCommand extends AbstractCommand {
         final TwitchChat chat = event.getTwitchChat();
 
         if (this.raffles.containsKey(channel)) {
-            chat.sendMessage(channel, "A raffle has already started in this channel", null, messageId);
+            chat.sendMessage(channel, "/me A raffle has already started in this channel crroolDerp", null, messageId);
             return;
         }
 
-        chat.sendMessage(channel, "test", null, messageId);
+        chat.sendMessage(channel, "/me crroolSpin A raffle has started type !join to join it crroolSpin", null, messageId);
 
         this.raffles.put(channel, new HashSet<>());
         this.countdownMap.put(channel, 60);
@@ -71,10 +71,10 @@ public class RaffleCommand extends AbstractCommand {
                 this.countdownMap.remove(channel);
                 final Set<String> names = this.raffles.get(channel);
 
-                chat.sendMessage(channel, "The winner is ~~weeg~~ " + this.getRandom(names));
+                chat.sendMessage(channel, "crroolClap Congrats to @" + this.getRandom(names) + " for winning this raffle! crroolClap");
             } else {
                 this.countdownMap.put(channel, value);
-                chat.sendMessage(channel, value + " seconds left");
+                chat.sendMessage(channel, "crroolHappy There are " + value + " seconds left! Type !join to join crroolPray");
             }
         }, 15L, 15L, TimeUnit.SECONDS);
     }
