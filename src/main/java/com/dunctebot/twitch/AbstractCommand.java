@@ -18,16 +18,21 @@
 
 package com.dunctebot.twitch;
 
-import com.github.philippheuer.events4j.simple.domain.EventSubscriber;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 
-public class EventHandler {
+import java.util.List;
 
-    private final CommandHandler commandHandler = new CommandHandler();
+public abstract class AbstractCommand {
 
-    @EventSubscriber
-    public void printChannelMessage(ChannelMessageEvent event) {
-        this.commandHandler.handle(event);
-        System.out.println("[" + event.getChannel().getName() + "]["+event.getPermissions()+"] " + event.getUser().getName() + ": " + event.getMessage());
+    private final String name;
+
+    public AbstractCommand(String name) {
+        this.name = name;
+    }
+
+    public abstract void execute(ChannelMessageEvent event, List<String> args);
+
+    public String getName() {
+        return this.name;
     }
 }
