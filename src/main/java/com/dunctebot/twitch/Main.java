@@ -44,7 +44,11 @@ public class Main {
             .registerListener(eventHandler);
 
         // we need to join all channels
-        this.client.getChat().joinChannel("duncte123");
+        final String[] channels = System.getenv("CHANNELS").split(",");
+
+        for (final String channel : channels) {
+            this.client.getChat().joinChannel(channel);
+        }
     }
 
     public static void main(String[] args) {
