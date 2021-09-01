@@ -63,7 +63,7 @@ public class EventHandler {
             this.modInChannels.add(channelName);
         }
 
-        final TwitchHelix helix = this.main.getClient().getHelix();
+        /*final TwitchHelix helix = this.main.getClient().getHelix();
 
         final UserList userList = helix.getUsers(null, null, List.of(channelName, botName)).execute();
         final List<User> users = userList.getUsers();
@@ -77,7 +77,7 @@ public class EventHandler {
 
         this.main.getClient()
             .getPubSub()
-            .listenForModerationEvents(this.main.getCredential(), botId, channelId);
+            .listenForModerationEvents(this.main.getCredential(), botId, channelId);*/
     }
 
     @EventSubscriber
@@ -99,10 +99,12 @@ public class EventHandler {
         // event.getTwitchChat().sendMessage(channelName, "/mods");
 
         if (
-            !event.getPermissions().contains(CommandPermission.MODERATOR) &&
+            /*!event.getPermissions().contains(CommandPermission.MODERATOR) &&*/
             this.modInChannels.contains(channelName)
         ) {
-            float score = this.perspective.getScore(event.getMessage(), "SEVERE_TOXICITY");
+            // https://support.perspectiveapi.com/s/about-the-api-attributes-and-languages
+            float score = this.perspective.getScore(event.getMessage(), "THREAT");
+            System.out.println("Score: " + score);
 
             if (score >= 0.79f) {
                 event.getTwitchChat().timeout(

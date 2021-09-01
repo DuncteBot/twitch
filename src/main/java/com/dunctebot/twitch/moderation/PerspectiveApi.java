@@ -69,7 +69,9 @@ public class PerspectiveApi {
 
             final JsonNode score = json.get("attributeScores").get(model).get("summaryScore");
 
-            return Float.parseFloat(score.get("score").asText());
+            System.out.println(score);
+
+            return Float.parseFloat(score.get("value").asText());
         } catch (final IOException e) {
             LOG.error("Failed to fetch perspective api data", e);
             return 0f;

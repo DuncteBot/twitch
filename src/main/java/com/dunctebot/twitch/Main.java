@@ -42,8 +42,8 @@ public class Main {
             // .withClientSecret(System.getenv("CLIENT_SECRET"))
             .withEnableTMI(true)
             .withEnableChat(true)
-            .withEnableHelix(true)
-            .withEnablePubSub(true)
+            .withEnableHelix(false)
+            .withEnablePubSub(false)
             .withChatAccount(this.credential)
             .build();
 
