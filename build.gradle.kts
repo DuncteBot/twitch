@@ -1,16 +1,25 @@
 plugins {
     java
+    application
 }
 
 group = "com.dunctebot"
 version = "1.0-SNAPSHOT"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+
+application {
+    mainClass.set("com.dunctebot.twitch.Main")
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
     implementation(group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version = "2.12.4")
     implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
 

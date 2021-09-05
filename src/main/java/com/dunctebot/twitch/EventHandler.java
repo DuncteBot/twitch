@@ -23,15 +23,11 @@ import com.github.philippheuer.events4j.simple.domain.EventSubscriber;
 import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.common.enums.CommandPermission;
 import com.github.twitch4j.common.events.domain.EventChannel;
-import com.github.twitch4j.helix.TwitchHelix;
-import com.github.twitch4j.helix.domain.User;
-import com.github.twitch4j.helix.domain.UserList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class EventHandler {
@@ -99,12 +95,17 @@ public class EventHandler {
         // event.getTwitchChat().sendMessage(channelName, "/mods");
 
         if (
-            /*!event.getPermissions().contains(CommandPermission.MODERATOR) &&*/
+            !event.getPermissions().contains(CommandPermission.MODERATOR) &&
             this.modInChannels.contains(channelName)
         ) {
             // https://support.perspectiveapi.com/s/about-the-api-attributes-and-languages
             float score = this.perspective.getScore(event.getMessage(), "THREAT");
-            System.out.println("Score: " + score);
+            LOG.info(
+                "Perspective results for message in {}\nMessage: {}\nScore:{}",
+                channelName,
+                event.getMessage(),
+                score
+            );
 
             if (score >= 0.79f) {
                 event.getTwitchChat().timeout(
