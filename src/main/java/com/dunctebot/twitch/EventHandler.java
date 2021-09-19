@@ -99,7 +99,7 @@ public class EventHandler {
             this.modInChannels.contains(channelName)
         ) {
             // https://support.perspectiveapi.com/s/about-the-api-attributes-and-languages
-            float score = this.perspective.getScore(event.getMessage(), "THREAT");
+            float score = this.perspective.getScore(event.getMessage(), "TOXICITY");
             LOG.info(
                 "Perspective results for message in {}\nMessage: {}\nScore:{}",
                 channelName,
@@ -107,7 +107,7 @@ public class EventHandler {
                 score
             );
 
-            if (score >= 0.79f) {
+            if (score >= 0.80f) {
                 event.getTwitchChat().timeout(
                     channelName,
                     username,
