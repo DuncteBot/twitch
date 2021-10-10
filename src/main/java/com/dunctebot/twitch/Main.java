@@ -34,7 +34,7 @@ public class Main {
         // scopes: chat:read chat:edit channel:moderate whispers:read whispers:edit channel_editor
         // token gen: https://twitchapps.com/tokengen/
         
-        this.credential = new OAuth2Credential("twitch", System.getenv("OAUTH_TOKEN"));
+        this.credential = new OAuth2Credential("twitch", getOauthToken());
 
         this.client = TwitchClientBuilder.builder()
             .withDefaultAuthToken(this.credential)
@@ -73,5 +73,9 @@ public class Main {
 
     public OAuth2Credential getCredential() {
         return credential;
+    }
+
+    public static String getOauthToken() {
+        return System.getenv("OAUTH_TOKEN").replace("oauth:", "");
     }
 }
