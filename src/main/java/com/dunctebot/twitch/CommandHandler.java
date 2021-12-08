@@ -33,7 +33,7 @@ public class CommandHandler {
 
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
-    public CommandHandler(Main main) {
+    public CommandHandler() {
         this.addCommand(new CuteCommand());
         this.addCommand(new HugCommand());
         final RaffleCommand raffleCommand = new RaffleCommand();
@@ -45,6 +45,10 @@ public class CommandHandler {
         final String name = cmd.getName();
 
         this.commands.put(name, cmd);
+    }
+
+    public Map<String, AbstractCommand> getCommands() {
+        return commands;
     }
 
     @Nullable

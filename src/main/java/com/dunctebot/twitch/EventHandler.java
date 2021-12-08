@@ -55,7 +55,7 @@ public class EventHandler {
     public EventHandler(Main main, String botUserId) {
         this.main = main;
         this.botUserId = botUserId;
-        this.commandHandler = new CommandHandler(main);
+        this.commandHandler = new CommandHandler();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Shutting down");

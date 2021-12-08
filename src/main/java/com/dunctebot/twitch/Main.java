@@ -72,6 +72,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        if (args.length > 0 && "--export-commands".equals(args[0])) {
+            new CommandExporter();
+            return;
+        }
+
         LoggerFactory.getLogger(Main.class).info("Booting bot");
 
         new Main();
