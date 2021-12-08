@@ -23,10 +23,15 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.chat.TwitchChat;
+import com.github.twitch4j.helix.domain.UserList;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 
 public class Main {
+    public static final String BOT_USER_LOGIN = "dunctebot";
+
     private final TwitchClient client;
     private final OAuth2Credential credential;
 
@@ -47,7 +52,12 @@ public class Main {
             .withChatAccount(this.credential)
             .build();
 
-        final EventHandler eventHandler = new EventHandler(this);
+        final UserList selfRequest = this.client.getHelix()
+            .getUsers(null, null, List.of(BOT_USER_LOGIN))
+            .execute();
+        final String selfId = selfRequest.getUsers().get(0).getId();
+
+        final EventHandler eventHandler = new EventHandler(this, selfId);
         this.client.getEventManager()
             .getEventHandler(SimpleEventHandler.class)
             .registerListener(eventHandler);

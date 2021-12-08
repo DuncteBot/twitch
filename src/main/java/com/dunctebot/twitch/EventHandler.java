@@ -26,6 +26,8 @@ import com.github.twitch4j.common.events.domain.EventChannel;
 import com.github.twitch4j.helix.TwitchHelix;
 import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.UserList;
+import com.github.twitch4j.pubsub.PubSubSubscription;
+import com.github.twitch4j.pubsub.TwitchPubSub;
 import com.github.twitch4j.pubsub.domain.ChatModerationAction;
 import com.github.twitch4j.pubsub.domain.ChatModerationAction.ModerationAction;
 import com.github.twitch4j.pubsub.events.ChatModerationEvent;
@@ -33,9 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static com.dunctebot.twitch.Main.BOT_USER_LOGIN;
 
 public class EventHandler {
     private static final Logger LOG = LoggerFactory.getLogger(EventHandler.class);
@@ -44,12 +49,20 @@ public class EventHandler {
     private final Set<String> modInChannels = new HashSet<>();
     private final Main main;
     private final CommandHandler commandHandler;
-    // TODO: hardcoded
-    private final String selfLoginName = "dunctebot";
+    private final String botUserId;
+    private final List<PubSubSubscription> subscriptions = new ArrayList<>();
 
-    public EventHandler(Main main) {
+    public EventHandler(Main main, String botUserId) {
         this.main = main;
+        this.botUserId = botUserId;
         this.commandHandler = new CommandHandler(main);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOG.info("Shutting down");
+            final TwitchPubSub pubSub = this.main.getClient().getPubSub();
+
+            subscriptions.forEach(pubSub::unsubscribeFromTopic);
+        }));
     }
 
     // we know the chat and can start listening for events
@@ -71,21 +84,14 @@ public class EventHandler {
         LOG.info("Adding listener for moderation events in {}", channelName);
 
         final TwitchHelix helix = this.main.getClient().getHelix();
-
-        // TODO: don't fetch self every time
-        final UserList userList = helix.getUsers(null, null, List.of(channelName, botName)).execute();
+        final UserList userList = helix.getUsers(null, null, List.of(channelName)).execute();
         final List<User> users = userList.getUsers();
-
-        /*System.out.println(users.get(0));
-        System.out.println(users.get(1));
-        System.out.println("========================");*/
-
         final String channelId = users.get(0).getId();
-        final String botId = users.get(1).getId();
-
-        this.main.getClient()
+        final PubSubSubscription subscription = this.main.getClient()
             .getPubSub()
-            .listenForModerationEvents(this.main.getCredential(), botId, channelId);
+            .listenForModerationEvents(this.main.getCredential(), this.botUserId, channelId);
+
+        this.subscriptions.add(subscription);
     }
 
     @EventSubscriber
@@ -94,7 +100,7 @@ public class EventHandler {
         final ModerationAction action = data.getModerationAction();
         final String targetLogin = data.getTargetUserLogin();
 
-        if (!targetLogin.equals(selfLoginName)) {
+        if (!targetLogin.equals(Main.BOT_USER_LOGIN)) {
             return;
         }
 
