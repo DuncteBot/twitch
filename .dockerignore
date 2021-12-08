@@ -1,0 +1,9 @@
+.idea/
+.git/
+data/
+hiros/
+build/
+.gradle/
+config.json
+config.example.json
+upload.sh

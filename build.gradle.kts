@@ -1,6 +1,7 @@
 plugins {
     java
     application
+    id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
 group = "com.dunctebot"
@@ -29,8 +30,15 @@ dependencies {
 }
 
 tasks {
+    compileJava {
+        // options.compilerArgs.add("--enable-preview")
+        options.isIncremental = true
+    }
     wrapper {
         gradleVersion = "7.2"
         distributionType = Wrapper.DistributionType.ALL
+    }
+    shadowJar {
+        archiveClassifier.set("")
     }
 }

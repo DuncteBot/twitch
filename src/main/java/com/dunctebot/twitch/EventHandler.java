@@ -148,6 +148,6 @@ public class EventHandler {
         }
 
         this.commandHandler.handle(event);
-        LOG.info("[" + channelName + "]["+event.getPermissions()+"] " + username + ": " + event.getMessage());
+        LOG.info("[{}]{} {}: {}", channelName, event.getPermissions(), username, event.getMessage());
     }
 }
