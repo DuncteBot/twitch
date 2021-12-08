@@ -61,6 +61,7 @@ public class EventHandler {
             LOG.info("Shutting down");
             final TwitchPubSub pubSub = this.main.getClient().getPubSub();
 
+            // TODO: do we need to do this?
             subscriptions.forEach(pubSub::unsubscribeFromTopic);
         }));
     }
@@ -100,7 +101,7 @@ public class EventHandler {
         final ModerationAction action = data.getModerationAction();
         final String targetLogin = data.getTargetUserLogin();
 
-        if (!targetLogin.equals(Main.BOT_USER_LOGIN)) {
+        if (!targetLogin.equals(BOT_USER_LOGIN)) {
             return;
         }
 
@@ -148,6 +149,6 @@ public class EventHandler {
         }
 
         this.commandHandler.handle(event);
-        LOG.info("[" + channelName + "]["+event.getPermissions()+"] " + username + ": " + event.getMessage());
+        LOG.info("[{}][{}] {}: {}", channelName, event.getPermissions(), username, event.getMessage());
     }
 }
