@@ -23,11 +23,18 @@ import com.github.philippheuer.events4j.simple.domain.EventSubscriber;
 import com.github.twitch4j.chat.events.channel.*;
 import com.github.twitch4j.common.enums.CommandPermission;
 import com.github.twitch4j.common.events.domain.EventChannel;
+import com.github.twitch4j.helix.TwitchHelix;
+import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.helix.domain.UserList;
+import com.github.twitch4j.pubsub.domain.ChatModerationAction;
+import com.github.twitch4j.pubsub.domain.ChatModerationAction.ModerationAction;
+import com.github.twitch4j.pubsub.events.ChatModerationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class EventHandler {
@@ -37,6 +44,8 @@ public class EventHandler {
     private final Set<String> modInChannels = new HashSet<>();
     private final Main main;
     private final CommandHandler commandHandler;
+    // TODO: hardcoded
+    private final String selfLoginName = "dunctebot";
 
     public EventHandler(Main main) {
         this.main = main;
@@ -51,7 +60,7 @@ public class EventHandler {
         final String channelName = channel.getName();
         final String botName = event.getDisplayName().get();
 
-        LOG.info("[USERSTATE][" + channelName + "][" + botName +"] " + messageEvent.getClientPermissions());
+        LOG.info("[USERSTATE][{}][{}] {}", channelName, botName, messageEvent.getClientPermissions());
 
         if (this.modInChannels.contains(channelName) && !event.isModerator()) {
             this.modInChannels.remove(channelName);
@@ -59,32 +68,46 @@ public class EventHandler {
             this.modInChannels.add(channelName);
         }
 
-        /*final TwitchHelix helix = this.main.getClient().getHelix();
+        LOG.info("Adding listener for moderation events in {}", channelName);
 
+        final TwitchHelix helix = this.main.getClient().getHelix();
+
+        // TODO: don't fetch self every time
         final UserList userList = helix.getUsers(null, null, List.of(channelName, botName)).execute();
         final List<User> users = userList.getUsers();
 
-        System.out.println(users.get(0));
+        /*System.out.println(users.get(0));
         System.out.println(users.get(1));
-        System.out.println("========================");
+        System.out.println("========================");*/
 
         final String channelId = users.get(0).getId();
         final String botId = users.get(1).getId();
 
         this.main.getClient()
             .getPubSub()
-            .listenForModerationEvents(this.main.getCredential(), botId, channelId);*/
+            .listenForModerationEvents(this.main.getCredential(), botId, channelId);
     }
 
     @EventSubscriber
-    public void onChannelMod(ChannelModEvent event) {
-        if (event.isMod()) {
-            this.modInChannels.add(event.getChannel().getName());
-        } else {
-            this.modInChannels.remove(event.getChannel().getName());
+    public void onChatModeration(ChatModerationEvent event) {
+        final ChatModerationAction data = event.getData();
+        final ModerationAction action = data.getModerationAction();
+        final String targetLogin = data.getTargetUserLogin();
+
+        if (!targetLogin.equals(selfLoginName)) {
+            return;
         }
 
-        System.out.println(event);
+        // TODO: should always be the channel owner?
+        final String channelName = data.getCreatedBy().toLowerCase();
+
+        if (action == ModerationAction.MOD) {
+            LOG.info("Became moderator in {}", channelName);
+            this.modInChannels.add(channelName);
+        } else if (action == ModerationAction.UNMOD) {
+            LOG.info("Lost moderator perms in {}", channelName);
+            this.modInChannels.remove(channelName);
+        }
     }
 
     @EventSubscriber
