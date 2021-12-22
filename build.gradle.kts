@@ -1,7 +1,7 @@
 plugins {
     java
     application
-    id("com.github.johnrengelman.shadow") version "7.1.0"
+    id("com.github.johnrengelman.shadow") version "7.1.1"
 }
 
 group = "com.dunctebot"
@@ -22,9 +22,9 @@ repositories {
 
 dependencies {
     implementation(group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version = "2.12.4")
-    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
+    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.9")
 
-    implementation(group = "com.github.twitch4j", name = "twitch4j", version = "1.6.0")
+    implementation(group = "com.github.twitch4j", name = "twitch4j", version = "1.7.0")
 
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "3.14.9")
 }

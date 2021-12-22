@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CommandHandler {
+    public static final String PREFIX = "!";
 
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
@@ -60,7 +61,7 @@ public class CommandHandler {
     void handle(ChannelMessageEvent event) {
         final String message = event.getMessage();
 
-        if (!message.startsWith("!") || message.length() < 2) {
+        if (!message.startsWith(PREFIX) || message.length() < 2) {
             return;
         }
 

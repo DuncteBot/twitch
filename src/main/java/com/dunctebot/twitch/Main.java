@@ -69,6 +69,8 @@ public class Main {
         for (final String channel : channels) {
             chat.joinChannel(channel);
         }
+
+        new StayHydrated(this.client);
     }
 
     public static void main(String[] args) {
