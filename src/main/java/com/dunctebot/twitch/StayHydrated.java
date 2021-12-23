@@ -38,8 +38,6 @@ import java.util.concurrent.TimeUnit;
 // Inspired by: https://github.com/Vuurvos1/stayHydratedFox
 public class StayHydrated {
     private static final Logger LOG = LoggerFactory.getLogger(StayHydrated.class);
-
-
     private static final int HOUR_IN_MILIS = 60 * 60 * 1000;
 
     private final TwitchHelix helix;
@@ -106,7 +104,9 @@ public class StayHydrated {
             final Duration diff = Duration.between(start, now);
             final long streamTime = diff.toMillis();
             final long timeTilReminder = HOUR_IN_MILIS - (streamTime % HOUR_IN_MILIS);
-            final long hoursLive = diff.toHoursPart();
+            final long hoursLive = diff.toHours();
+
+            // LOG.info("toHours: {}, toHoursPart: {}, ceil: {}", hoursLive, diff.toHoursPart(), streamTime / HOUR_IN_MILIS);
 
             this.messageQueue.add(login);
             LOG.info(
@@ -122,14 +122,15 @@ public class StayHydrated {
                 }
 
                 if (this.liveChannels.contains(login)) {
-                    final String hourWord = hoursLive == 1 ? "hour" : "hours";
+                    final long currentHoursLive = hoursLive + 1;
+                    final String hourWord = currentHoursLive == 1 ? "hour" : "hours";
 
-                    LOG.info("Sending reminder to {}, {} {} live", login, hoursLive, hourWord);
+                    LOG.info("Sending reminder to {}, {} {} live", login, currentHoursLive, hourWord);
 
                     this.chat.sendMessage(
                         login,
                         "You have been live for %s %s and should have consumed at least %sml of water to maintain optimal hydration! \uD83D\uDCA6"
-                            .formatted(hoursLive, hourWord, hoursLive * 120)
+                            .formatted(currentHoursLive, hourWord, currentHoursLive * 120)
                     );
                 }
             }, timeTilReminder, TimeUnit.MILLISECONDS);
