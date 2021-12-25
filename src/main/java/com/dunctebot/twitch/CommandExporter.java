@@ -18,6 +18,8 @@
 
 package com.dunctebot.twitch;
 
+import com.github.twitch4j.TwitchClient;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,8 +27,6 @@ import java.nio.file.Files;
 public class CommandExporter {
     private static final String COMMAND_TEMPLATE = "./cmdhtml/template.html";
     private static final String COMMAND_OUTPUT = "./cmdhtml/index.html";
-
-    private final CommandHandler commandsHandler = new CommandHandler();
 
     public CommandExporter() {
         try {
@@ -40,6 +40,7 @@ public class CommandExporter {
 
             final String tmp = Files.readString(template.toPath());
 
+            CommandHandler commandsHandler = new CommandHandler(null);
             commandsHandler.getCommands().forEach((name, cmd) -> {
                 sb.append("<tr><td>")
                     .append(name)

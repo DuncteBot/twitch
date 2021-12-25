@@ -22,6 +22,7 @@ import com.dunctebot.twitch.commands.CuteCommand;
 import com.dunctebot.twitch.commands.HangmanCommand;
 import com.dunctebot.twitch.commands.HugCommand;
 import com.dunctebot.twitch.commands.RaffleCommand;
+import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,10 +36,10 @@ public class CommandHandler {
 
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
-    public CommandHandler() {
+    public CommandHandler(TwitchClient client) {
         this.addCommand(new CuteCommand());
 
-        final HangmanCommand hangmanCommand = new HangmanCommand();
+        final HangmanCommand hangmanCommand = new HangmanCommand(client);
 
         this.addCommand(hangmanCommand);
         this.addCommand(new HangmanCommand.GuessCommand(hangmanCommand));

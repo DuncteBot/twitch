@@ -19,6 +19,7 @@
 package com.dunctebot.twitch.commands;
 
 import com.dunctebot.twitch.AbstractCommand;
+import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import gnu.trove.list.TIntList;
@@ -27,14 +28,20 @@ import gnu.trove.list.array.TIntArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class HangmanCommand extends AbstractCommand {
-    protected TIntList guessedLetters = new TIntArrayList();
-    protected Set<String> blockedPlayers = new HashSet<>();
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private final TwitchClient client;
+    private TIntList guessedLetters = new TIntArrayList();
+    private Set<String> blockedPlayers = new HashSet<>();
     private final AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicBoolean canStart = new AtomicBoolean(true);
     /// <editor-fold desc="pokemon names" defaultstate="collapsed">
     private final String[] words = {
         "Bulbasaur",
@@ -939,12 +946,18 @@ public class HangmanCommand extends AbstractCommand {
     private int currentWord = 0;
     /// </editor-fold>
 
-    public HangmanCommand() {
+    public HangmanCommand(TwitchClient client) {
         super("hangman");
+
+        this.client = client;
     }
 
     @Override
     public void execute(ChannelMessageEvent event, List<String> args) {
+        if (!this.canStart.get()) {
+            return;
+        }
+
         final boolean currentState = this.running.get();
         final TwitchChat chat = event.getTwitchChat();
 
@@ -954,25 +967,33 @@ public class HangmanCommand extends AbstractCommand {
         }
 
         this.running.set(true);
+        this.canStart.set(false);
         this.guessedLetters = new TIntArrayList();
         this.currentWord = ThreadLocalRandom.current().nextInt(this.words.length);
 
         event.reply(chat, "Hangman started, use !guess to guess a letter or the entire word");
         event.reply(chat, this.generateDisplay());
-        event.reply(chat, this.getCurrentWord());
     }
 
-    protected String getCurrentWord() {
+    private void startCooldown(String channel) {
+        this.scheduler.schedule(() -> {
+            this.canStart.set(true);
+            this.client.getChat().sendMessage(channel, "Hangman is available again crroolHappy");
+        }, 15L, TimeUnit.MINUTES);
+    }
+
+    private String getCurrentWord() {
         return this.words[this.currentWord];
     }
 
-    protected void resetGame() {
+    private void resetGame(String channel) {
         this.running.set(false);
         this.blockedPlayers = new HashSet<>();
         this.guessedLetters = new TIntArrayList();
+        this.startCooldown(channel);
     }
 
-    protected String generateDisplay() {
+    private String generateDisplay() {
         final String word = this.getCurrentWord();
 
         return word.chars()
@@ -993,7 +1014,7 @@ public class HangmanCommand extends AbstractCommand {
 
         @Override
         public void execute(ChannelMessageEvent event, List<String> args) {
-            if (args.isEmpty()) {
+            if (args.isEmpty() || !this.hangman.running.get()) {
                 return;
             }
 
@@ -1010,9 +1031,11 @@ public class HangmanCommand extends AbstractCommand {
             // a word is guessed
             if (guess.length() > 1) {
                 if (guess.equals(currentWord)) {
+                    final String channelName = event.getChannel().getName();
                     final String nonLowerWord = this.hangman.getCurrentWord();
-                    event.reply(chat, "Correct, the word was " + nonLowerWord + "! crroolWee");
-                    this.hangman.resetGame();
+
+                    event.reply(chat, "Correct, the word was " + nonLowerWord + "! crroolHug");
+                    this.hangman.resetGame(channelName);
                 } else {
                     this.hangman.blockedPlayers.add(userName);
                     event.reply(chat, "Nope that's not it crroolOof (blocked from playing until the next round)");
@@ -1034,13 +1057,14 @@ public class HangmanCommand extends AbstractCommand {
             final String display = this.hangman.generateDisplay();
 
             if (!display.contains("_")) {
+                final String channelName = event.getChannel().getName();
                 final String nonLowerWord = this.hangman.getCurrentWord();
                 final int points = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, 100);
 
                 event.reply(chat, "You won! crroolWee");
                 event.reply(chat, "You guessed that the word was " + nonLowerWord + " and earned " + points + " points!");
 
-                this.hangman.resetGame();
+                this.hangman.resetGame(channelName);
                 return;
             }
 
