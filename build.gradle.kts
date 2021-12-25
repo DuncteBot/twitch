@@ -27,6 +27,7 @@ dependencies {
     implementation(group = "com.github.twitch4j", name = "twitch4j", version = "1.7.0")
 
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "3.14.9")
+    implementation("net.sf.trove4j:trove4j:3.0.3")
 }
 
 tasks {

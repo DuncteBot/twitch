@@ -19,6 +19,7 @@
 package com.dunctebot.twitch;
 
 import com.dunctebot.twitch.commands.CuteCommand;
+import com.dunctebot.twitch.commands.HangmanCommand;
 import com.dunctebot.twitch.commands.HugCommand;
 import com.dunctebot.twitch.commands.RaffleCommand;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
@@ -36,6 +37,11 @@ public class CommandHandler {
 
     public CommandHandler() {
         this.addCommand(new CuteCommand());
+
+        final HangmanCommand hangmanCommand = new HangmanCommand();
+
+        this.addCommand(hangmanCommand);
+        this.addCommand(new HangmanCommand.GuessCommand(hangmanCommand));
         this.addCommand(new HugCommand());
         final RaffleCommand raffleCommand = new RaffleCommand();
         this.addCommand(raffleCommand);

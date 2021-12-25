@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -52,17 +53,26 @@ public class StayHydrated {
         this.helix = client.getHelix();
         this.chat = client.getChat();
 
-        final String[] users = Objects.requireNonNullElse(System.getenv("HYDRATE_USERS"), "").split(",");
+        final List<String> users = Arrays.stream(
+            Objects.requireNonNullElse(System.getenv("HYDRATE_USERS"), "")
+                .split(",")
+        )
+            .filter((s) -> !s.isBlank())
+            .toList();
 
-        if (users.length > 0) {
+        LOG.info("Checking live status for: {}", users);
+
+        if (!users.isEmpty()) {
             this.loadUserIds(users);
+
+            LOG.info("Starting to ping streams");
 
             this.scheduler.scheduleAtFixedRate(this::pingStreamUp, 0L, 1L, TimeUnit.HOURS);
         }
     }
 
-    private void loadUserIds(String[] userNames) {
-        final List<String> userIds = this.helix.getUsers(null, null, List.of(userNames))
+    private void loadUserIds(List<String> userNames) {
+        final List<String> userIds = this.helix.getUsers(null, null, userNames)
             .execute()
             .getUsers()
             .stream()
@@ -135,7 +145,6 @@ public class StayHydrated {
                 }
             }, timeTilReminder, TimeUnit.MILLISECONDS);
         }
-
 
         LOG.info("Channels current live: {}", String.join(", ", this.liveChannels));
     }
