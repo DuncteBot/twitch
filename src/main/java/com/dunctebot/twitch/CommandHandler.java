@@ -68,11 +68,11 @@ public class CommandHandler {
     void handle(ChannelMessageEvent event) {
         final String message = event.getMessage();
 
-        if (!message.startsWith(PREFIX) || message.length() < 2) {
+        if (!message.startsWith(PREFIX) || message.length() < PREFIX.length() + 1) {
             return;
         }
 
-        final String[] split = message.substring(1).split("\\s+", 2);
+        final String[] split = message.substring(PREFIX.length()).split("\\s+", 2);
         final String invoke = split[0].toLowerCase();
 
         final AbstractCommand command = this.getCommand(invoke);
