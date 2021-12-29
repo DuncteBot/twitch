@@ -22,6 +22,7 @@ import com.dunctebot.twitch.AbstractCommand;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.common.enums.CommandPermission;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TObjectIntMap;
@@ -953,12 +954,17 @@ public class HangmanCommand extends AbstractCommand {
     @Override
     public void execute(ChannelMessageEvent event, List<String> args) {
         final String channelName = event.getChannel().getName();
+        final TwitchChat chat = event.getTwitchChat();
+
+        if (!args.isEmpty() && "reset".equals(args.get(0)) && event.getPermissions().contains(CommandPermission.BROADCASTER)) {
+            event.reply(chat, "Game has been reset for channel");
+            this.resetGame(channelName, false);
+            return;
+        }
 
         if (this.onCooldown.contains(channelName)) {
             return;
         }
-
-        final TwitchChat chat = event.getTwitchChat();
 
         if (this.selectedWord.containsKey(channelName)) {
             event.reply(chat, "Already running in this chat: " + this.generateDisplay(channelName));
@@ -986,10 +992,16 @@ public class HangmanCommand extends AbstractCommand {
         return this.words[this.selectedWord.get(channel)];
     }
 
-    private void resetGame(String channel) {
+    private void resetGame(String channel, boolean doCooldown) {
         this.blockedPlayers.remove(channel);
         this.guessedLetters.remove(channel);
-        this.startCooldown(channel);
+        this.selectedWord.remove(channel);
+
+        if (doCooldown) {
+            this.startCooldown(channel);
+        } else {
+            this.onCooldown.remove(channel);
+        }
     }
 
     private String generateDisplay(String channel) {
@@ -1038,7 +1050,7 @@ public class HangmanCommand extends AbstractCommand {
                 if (guess.equals(currentWord)) {
 
                     event.reply(chat, "Correct, the word was " + nonLowerWord + "! crroolHug");
-                    this.hangman.resetGame(channelName);
+                    this.hangman.resetGame(channelName, true);
                 } else {
                     blocks.add(userName);
                     event.reply(chat, "Nope that's not it crroolOof (blocked from playing until the next round)");
@@ -1066,7 +1078,7 @@ public class HangmanCommand extends AbstractCommand {
                 event.reply(chat, "You won! crroolWee");
                 event.reply(chat, "You guessed that the word was " + nonLowerWord + " and earned " + points + " points!");
 
-                this.hangman.resetGame(channelName);
+                this.hangman.resetGame(channelName, true);
                 return;
             }
 
