@@ -23,6 +23,7 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import com.github.twitch4j.common.enums.CommandPermission;
+import gnu.trove.impl.sync.TSynchronizedIntList;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TObjectIntMap;
@@ -972,7 +973,8 @@ public class HangmanCommand extends AbstractCommand {
         }
 
         this.blockedPlayers.put(channelName, new HashSet<>());
-        this.guessedLetters.put(channelName, new TIntArrayList());
+        final var guessList = new TSynchronizedIntList(new TIntArrayList(), new Object());
+        this.guessedLetters.put(channelName, guessList);
         this.selectedWord.put(channelName, ThreadLocalRandom.current().nextInt(this.words.length));
 
         event.reply(chat, "Pokemon name hangman started, use !guess to guess a letter or the entire word");
