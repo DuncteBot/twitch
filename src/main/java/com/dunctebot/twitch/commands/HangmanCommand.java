@@ -1010,7 +1010,7 @@ public class HangmanCommand extends AbstractCommand {
 
         return word.chars()
             .mapToObj(
-                (i) -> guesses.contains(Character.toLowerCase(i)) || Character.isWhitespace(i) ? String.valueOf((char) i) : "_"
+                (i) -> guesses.contains(Character.toLowerCase(i)) ? String.valueOf((char) i) : Character.isWhitespace(i)  ? "/" : "_"
             )
             .collect(Collectors.joining(" "));
     }
@@ -1041,7 +1041,7 @@ public class HangmanCommand extends AbstractCommand {
             }
 
             final TwitchChat chat = event.getTwitchChat();
-            final String guess = args.get(0).toLowerCase();
+            final String guess = String.join(" ", args).toLowerCase();
             final String nonLowerWord = this.hangman.getCurrentWord(channelName);
             final String currentWord = nonLowerWord.toLowerCase();
 
