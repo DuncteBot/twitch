@@ -1050,8 +1050,9 @@ public class HangmanCommand extends AbstractCommand {
             // a word is guessed
             if (guess.length() > 1) {
                 if (guess.equals(currentWord)) {
+                    final int points = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-                    event.reply(chat, "Correct, the word was " + nonLowerWord + "! crroolHug");
+                    event.reply(chat, "Correct, the word was %s! crroolHug you earned %d points!".formatted(nonLowerWord, points));
                     this.hangman.resetGame(channelName, true);
                 } else {
                     blocks.add(userName);
@@ -1075,7 +1076,7 @@ public class HangmanCommand extends AbstractCommand {
             final String display = this.hangman.generateDisplay(channelName);
 
             if (!display.contains("_")) {
-                final int points = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, 100);
+                final int points = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
 
                 event.reply(chat, "You won! crroolWee");
                 event.reply(chat, "You guessed that the word was " + nonLowerWord + " and earned " + points + " points!");
