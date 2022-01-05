@@ -1,7 +1,7 @@
 plugins {
     java
     application
-    id("com.github.johnrengelman.shadow") version "7.1.1"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.dunctebot"
@@ -21,6 +21,7 @@ repositories {
 }
 
 dependencies {
+    implementation(group = "mysql", name = "mysql-connector-java", version = "8.0.27")
     implementation(group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version = "2.12.4")
     implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.9")
 

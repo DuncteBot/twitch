@@ -10,3 +10,8 @@ services:
             CHANNELS: 'duncte123'
             PERSPECTIVE_KEY: ''
             CLIENT_SECRET: ''
+            # mysql
+            SQL_HOST: ''
+            SQL_DB: ''
+            SQL_USER: ''
+            SQL_PASS: ''

@@ -19,6 +19,7 @@
 package com.dunctebot.twitch.commands;
 
 import com.dunctebot.twitch.AbstractCommand;
+import com.dunctebot.twitch.db.Database;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.TwitchChat;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
@@ -979,6 +980,7 @@ public class HangmanCommand extends AbstractCommand {
 
         event.reply(chat, "Pokemon name hangman started, use !guess to guess a letter or the entire word");
         event.reply(chat, this.generateDisplay(channelName));
+        event.reply(chat, this.getCurrentWord(channelName));
     }
 
     private void startCooldown(String channel) {
@@ -1018,6 +1020,7 @@ public class HangmanCommand extends AbstractCommand {
     }
 
     public static class GuessCommand extends AbstractCommand {
+        private final Database database = new Database();
         private final HangmanCommand hangman;
 
         public GuessCommand(HangmanCommand hangman) {
@@ -1050,8 +1053,9 @@ public class HangmanCommand extends AbstractCommand {
             // a word is guessed
             if (guess.length() > 1) {
                 if (guess.equals(currentWord)) {
-                    final int points = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    final int points = ThreadLocalRandom.current().nextInt(-100, 101);
 
+                    this.database.addPoints(event.getUser().getId(), userName, points);
                     event.reply(chat, "Correct, the word was %s! crroolHug you earned %d points!".formatted(nonLowerWord, points));
                     this.hangman.resetGame(channelName, true);
                 } else {
@@ -1076,8 +1080,9 @@ public class HangmanCommand extends AbstractCommand {
             final String display = this.hangman.generateDisplay(channelName);
 
             if (!display.contains("_")) {
-                final int points = ThreadLocalRandom.current().nextInt(Integer.MIN_VALUE, Integer.MAX_VALUE);
+                final int points = ThreadLocalRandom.current().nextInt(-100, 101);
 
+                this.database.addPoints(event.getUser().getId(), userName, points);
                 event.reply(chat, "You won! crroolWee");
                 event.reply(chat, "You guessed that the word was " + nonLowerWord + " and earned " + points + " points!");
 

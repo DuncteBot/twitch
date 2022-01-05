@@ -36,6 +36,7 @@ public class Main {
     private final OAuth2Credential credential;
 
     private Main() {
+        // TODO: https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow
         // scopes: chat:read chat:edit channel:moderate whispers:read whispers:edit channel_editor
         // token gen: https://twitchapps.com/tokengen/
         
