@@ -980,7 +980,6 @@ public class HangmanCommand extends AbstractCommand {
 
         event.reply(chat, "Pokemon name hangman started, use !guess to guess a letter or the entire word");
         event.reply(chat, this.generateDisplay(channelName));
-        event.reply(chat, this.getCurrentWord(channelName));
     }
 
     private void startCooldown(String channel) {
