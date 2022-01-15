@@ -30,10 +30,7 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +42,7 @@ public class HangmanCommand extends AbstractCommand {
     private final TObjectIntMap<String> selectedWord = new TObjectIntHashMap<>();
     private final Map<String, TIntList> guessedLetters = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> blockedPlayers = new ConcurrentHashMap<>();
+    private final Map<String, String> eastereggs = new HashMap<>();
     /// <editor-fold desc="pokemon names" defaultstate="collapsed">
     private final String[] words = {
         "Bulbasaur",
@@ -951,6 +949,9 @@ public class HangmanCommand extends AbstractCommand {
         super("hangman");
 
         this.client = client;
+
+        this.eastereggs.put("Shuckle", "(but actually a ditto)");
+        this.eastereggs.put("Clefairy", "with a gun");
     }
 
     @Override
@@ -995,6 +996,14 @@ public class HangmanCommand extends AbstractCommand {
         return this.words[this.selectedWord.get(channel)];
     }
 
+    private String pkmn(String word) {
+        if (this.eastereggs.containsKey(word)) {
+            return word + ' ' + this.eastereggs.get(word);
+        }
+
+        return word;
+    }
+
     private void resetGame(String channel, boolean doCooldown) {
         this.blockedPlayers.remove(channel);
         this.guessedLetters.remove(channel);
@@ -1028,6 +1037,10 @@ public class HangmanCommand extends AbstractCommand {
             this.hangman = hangman;
         }
 
+        private String pkmn(String word) {
+            return this.hangman.pkmn(word);
+        }
+
         @Override
         public void execute(ChannelMessageEvent event, List<String> args) {
             final String channelName = event.getChannel().getName();
@@ -1055,7 +1068,7 @@ public class HangmanCommand extends AbstractCommand {
                     final int points = ThreadLocalRandom.current().nextInt(-100, 101);
 
                     this.database.addPoints(event.getUser().getId(), userName, points);
-                    event.reply(chat, "Correct, the word was %s! crroolHug you earned %d points!".formatted(nonLowerWord, points));
+                    event.reply(chat, "Correct, the pokemon was %s! crroolHug you earned %d points!".formatted(pkmn(nonLowerWord), points));
                     this.hangman.resetGame(channelName, true);
                 } else {
                     blocks.add(userName);
@@ -1083,7 +1096,7 @@ public class HangmanCommand extends AbstractCommand {
 
                 this.database.addPoints(event.getUser().getId(), userName, points);
                 event.reply(chat, "You won! crroolWee");
-                event.reply(chat, "You guessed that the word was " + nonLowerWord + " and earned " + points + " points!");
+                event.reply(chat, "You guessed that the pokemon was " + pkmn(nonLowerWord) + " and earned " + points + " points!");
 
                 this.hangman.resetGame(channelName, true);
                 return;
