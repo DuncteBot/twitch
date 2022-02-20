@@ -959,10 +959,19 @@ public class HangmanCommand extends AbstractCommand {
         final String channelName = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
 
-        if (!args.isEmpty() && "reset".equals(args.get(0)) && event.getPermissions().contains(CommandPermission.BROADCASTER)) {
-            event.reply(chat, "Game has been reset for channel");
-            this.resetGame(channelName, false);
-            return;
+        if (!args.isEmpty()) {
+            if ("reset".equals(args.get(0)) && event.getPermissions().contains(CommandPermission.BROADCASTER)) {
+                event.reply(chat, "Game has been reset for channel");
+                this.resetGame(channelName, false);
+                return;
+            }
+
+            if ("cheat".equals(args.get(0))) {
+                // :P
+                this.client.getChat().sendPrivateMessage(event.getUser().getName(), "the word");
+                event.reply(chat, "I've DM'd you the word");
+                return;
+            }
         }
 
         if (this.onCooldown.contains(channelName)) {
@@ -1065,7 +1074,7 @@ public class HangmanCommand extends AbstractCommand {
             // a word is guessed
             if (guess.length() > 1) {
                 if (guess.equals(currentWord)) {
-                    final int points = ThreadLocalRandom.current().nextInt(-100, 101);
+                    final int points = ThreadLocalRandom.current().nextInt(0, 101);
 
                     this.database.addPoints(event.getUser().getId(), userName, points);
                     event.reply(chat, "Correct, the pokemon was %s! crroolHug you earned %d points!".formatted(pkmn(nonLowerWord), points));
@@ -1092,7 +1101,7 @@ public class HangmanCommand extends AbstractCommand {
             final String display = this.hangman.generateDisplay(channelName);
 
             if (!display.contains("_")) {
-                final int points = ThreadLocalRandom.current().nextInt(-100, 101);
+                final int points = ThreadLocalRandom.current().nextInt(0, 101);
 
                 this.database.addPoints(event.getUser().getId(), userName, points);
                 event.reply(chat, "You won! crroolWee");
