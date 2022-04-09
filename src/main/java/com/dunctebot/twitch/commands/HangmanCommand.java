@@ -1106,11 +1106,12 @@ public class HangmanCommand extends AbstractCommand {
             final String guess = String.join(" ", args).toLowerCase();
             final String nonLowerWord = this.hangman.getCurrentWord(channelName);
             final String currentWord = nonLowerWord.toLowerCase();
-            final String display = this.hangman.generateDisplay(channelName);
 
             // a word is guessed
             if (guess.length() > 1) {
                 if (guess.equals(currentWord)) {
+                    // can't be outside, will cause a bug
+                    final String display = this.hangman.generateDisplay(channelName);
                     final int maxPoints = getMaxPointsForFullGuess(display);
                     final int points = ThreadLocalRandom.current().nextInt(0, maxPoints);
 
@@ -1135,6 +1136,8 @@ public class HangmanCommand extends AbstractCommand {
             if (currentWord.contains(guess)) {
                 guesses.add(guessedLetter);
             }
+
+            final String display = this.hangman.generateDisplay(channelName);
 
             if (!display.contains("_")) {
                 final int points = ThreadLocalRandom.current().nextInt(0, 10);
