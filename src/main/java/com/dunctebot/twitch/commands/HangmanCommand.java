@@ -952,6 +952,7 @@ public class HangmanCommand extends AbstractCommand {
 
         this.eastereggs.put("Shuckle", "(but actually a ditto)");
         this.eastereggs.put("Clefairy", "with a gun");
+        this.eastereggs.put("Lanturn", "AKA service fish");
     }
 
     @Override
@@ -1050,6 +1051,41 @@ public class HangmanCommand extends AbstractCommand {
             return this.hangman.pkmn(word);
         }
 
+        private int countUnderscores(String withSpotsLeft) {
+            int undrescores = 0;
+
+            for (char c : withSpotsLeft.toCharArray()) {
+                if (c == '_') {
+                    undrescores++;
+                }
+            }
+
+            return undrescores;
+        }
+
+        private int getMaxPointsForFullGuess(String withSpotsLeft) {
+            final int undrescores = countUnderscores(withSpotsLeft);
+
+            // lucky guess lol
+            if (undrescores == withSpotsLeft.length()) {
+                return 500;
+            }
+
+            if (undrescores >= 10) {
+                return 151;
+            }
+
+            if (undrescores >= 5) {
+                return 100;
+            }
+
+            if (undrescores >= 2) {
+                return 50;
+            }
+
+            return 15;
+        }
+
         @Override
         public void execute(ChannelMessageEvent event, List<String> args) {
             final String channelName = event.getChannel().getName();
@@ -1070,11 +1106,13 @@ public class HangmanCommand extends AbstractCommand {
             final String guess = String.join(" ", args).toLowerCase();
             final String nonLowerWord = this.hangman.getCurrentWord(channelName);
             final String currentWord = nonLowerWord.toLowerCase();
+            final String display = this.hangman.generateDisplay(channelName);
 
             // a word is guessed
             if (guess.length() > 1) {
                 if (guess.equals(currentWord)) {
-                    final int points = ThreadLocalRandom.current().nextInt(0, 101);
+                    final int maxPoints = getMaxPointsForFullGuess(display);
+                    final int points = ThreadLocalRandom.current().nextInt(0, maxPoints);
 
                     this.database.addPoints(event.getUser().getId(), userName, points);
                     event.reply(chat, "Correct, the pokemon was %s! crroolHug you earned %d points!".formatted(pkmn(nonLowerWord), points));
@@ -1098,10 +1136,8 @@ public class HangmanCommand extends AbstractCommand {
                 guesses.add(guessedLetter);
             }
 
-            final String display = this.hangman.generateDisplay(channelName);
-
             if (!display.contains("_")) {
-                final int points = ThreadLocalRandom.current().nextInt(0, 101);
+                final int points = ThreadLocalRandom.current().nextInt(0, 10);
 
                 this.database.addPoints(event.getUser().getId(), userName, points);
                 event.reply(chat, "You won! crroolWee");
