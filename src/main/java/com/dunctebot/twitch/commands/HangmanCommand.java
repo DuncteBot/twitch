@@ -1063,27 +1063,28 @@ public class HangmanCommand extends AbstractCommand {
             return undrescores;
         }
 
-        private int getMaxPointsForFullGuess(String withSpotsLeft) {
-            final int undrescores = countUnderscores(withSpotsLeft);
+        private int getScore(String wordWithSpotsLeft) {
+            final int undrescores = countUnderscores(wordWithSpotsLeft);
+            final ThreadLocalRandom rng = ThreadLocalRandom.current();
 
             // lucky guess lol
-            if (undrescores == withSpotsLeft.length()) {
-                return 500;
+            if (undrescores == wordWithSpotsLeft.length()) {
+                return rng.nextInt(151, 500);
             }
 
             if (undrescores >= 10) {
-                return 151;
+                return rng.nextInt(100, 151);
             }
 
             if (undrescores >= 5) {
-                return 100;
+                return rng.nextInt(50, 100);
             }
 
             if (undrescores >= 2) {
-                return 50;
+                return rng.nextInt(15, 50);
             }
 
-            return 15;
+            return rng.nextInt(1, 15);
         }
 
         @Override
@@ -1112,8 +1113,7 @@ public class HangmanCommand extends AbstractCommand {
                 if (guess.equals(currentWord)) {
                     // can't be outside, will cause a bug
                     final String display = this.hangman.generateDisplay(channelName);
-                    final int maxPoints = getMaxPointsForFullGuess(display);
-                    final int points = ThreadLocalRandom.current().nextInt(0, maxPoints);
+                    final int points = getScore(display);
 
                     this.database.addPoints(event.getUser().getId(), userName, points);
                     event.reply(chat, "Correct, the pokemon was %s! crroolHug you earned %d points!".formatted(pkmn(nonLowerWord), points));
