@@ -25,7 +25,7 @@ dependencies {
     implementation(group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version = "2.12.4")
     implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.9")
 
-    implementation(group = "com.github.twitch4j", name = "twitch4j", version = "1.11.0")
+    implementation(group = "com.github.twitch4j", name = "twitch4j", version = "1.12.0")
 
     implementation(group = "com.squareup.okhttp3", name = "okhttp", version = "3.14.9")
     implementation("net.sf.trove4j:trove4j:3.0.3")
@@ -38,7 +38,7 @@ tasks {
     }
     wrapper {
         gradleVersion = "7.2"
-        distributionType = Wrapper.DistributionType.ALL
+        distributionType = Wrapper.DistributionType.BIN
     }
     shadowJar {
         archiveClassifier.set("")
