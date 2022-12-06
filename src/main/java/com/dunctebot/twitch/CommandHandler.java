@@ -19,8 +19,10 @@
 package com.dunctebot.twitch;
 
 import com.dunctebot.twitch.commands.CuteCommand;
+import com.dunctebot.twitch.commands.HangmanCommand;
 import com.dunctebot.twitch.commands.HugCommand;
 import com.dunctebot.twitch.commands.RaffleCommand;
+import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,11 +32,17 @@ import java.util.List;
 import java.util.Map;
 
 public class CommandHandler {
+    public static final String PREFIX = "!";
 
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
-    public CommandHandler(Main main) {
+    public CommandHandler(TwitchClient client) {
         this.addCommand(new CuteCommand());
+
+        final HangmanCommand hangmanCommand = new HangmanCommand(client);
+
+        this.addCommand(hangmanCommand);
+        this.addCommand(new HangmanCommand.GuessCommand(hangmanCommand));
         this.addCommand(new HugCommand());
         final RaffleCommand raffleCommand = new RaffleCommand();
         this.addCommand(raffleCommand);
@@ -47,6 +55,10 @@ public class CommandHandler {
         this.commands.put(name, cmd);
     }
 
+    public Map<String, AbstractCommand> getCommands() {
+        return commands;
+    }
+
     @Nullable
     private AbstractCommand getCommand(String name) {
         return this.commands.get(name);
@@ -56,11 +68,11 @@ public class CommandHandler {
     void handle(ChannelMessageEvent event) {
         final String message = event.getMessage();
 
-        if (!message.startsWith("!") || message.length() < 2) {
+        if (!message.startsWith(PREFIX) || message.length() < PREFIX.length() + 1) {
             return;
         }
 
-        final String[] split = message.substring(1).split("\\s+", 2);
+        final String[] split = message.substring(PREFIX.length()).split("\\s+", 2);
         final String invoke = split[0].toLowerCase();
 
         final AbstractCommand command = this.getCommand(invoke);

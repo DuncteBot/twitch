@@ -54,11 +54,11 @@ public class RaffleCommand extends AbstractCommand {
         final TwitchChat chat = event.getTwitchChat();
 
         if (this.raffles.containsKey(channel)) {
-            chat.sendMessage(channel, "/me A raffle has already started in this channel crroolDerp", null, messageId);
+            event.reply(chat, "/me A raffle has already started in this channel crroolDerp");
             return;
         }
 
-        chat.sendMessage(channel, "/me crroolSpin A raffle has started type !join to join it crroolSpin", null, messageId);
+        event.reply(chat, "/me crroolSpin A raffle has started type !join to join it crroolSpin");
 
         this.raffles.put(channel, new HashSet<>());
         this.countdownMap.put(channel, 60);

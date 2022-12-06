@@ -55,7 +55,7 @@ public class EventHandler {
     public EventHandler(Main main, String botUserId) {
         this.main = main;
         this.botUserId = botUserId;
-        this.commandHandler = new CommandHandler(main);
+        this.commandHandler = new CommandHandler(main.getClient());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Shutting down");
@@ -122,6 +122,8 @@ public class EventHandler {
         final String channelName = event.getChannel().getName();
         final String username = event.getUser().getName();
 
+        LOG.info("[{}]{} {}: {}", channelName, event.getPermissions(), username, event.getMessage());
+
         // event.getTwitchChat().sendMessage(channelName, "/mods");
 
         if (
@@ -129,7 +131,7 @@ public class EventHandler {
             this.modInChannels.contains(channelName)
         ) {
             // https://support.perspectiveapi.com/s/about-the-api-attributes-and-languages
-            float score = this.perspective.getScore(event.getMessage(), "TOXICITY");
+            float score = this.perspective.getScore(event.getMessage(), "SEVERE_TOXICITY");
             LOG.info(
                 "Perspective results for message in {}\nMessage: {}\nScore:{}",
                 channelName,
@@ -149,6 +151,5 @@ public class EventHandler {
         }
 
         this.commandHandler.handle(event);
-        LOG.info("[{}][{}] {}: {}", channelName, event.getPermissions(), username, event.getMessage());
     }
 }

@@ -36,10 +36,10 @@ public class HugCommand extends AbstractCommand {
     public void execute(ChannelMessageEvent event, List<String> args) {
         final String channel = event.getChannel().getName();
         final TwitchChat chat = event.getTwitchChat();
+        final String messageId = event.getMessageEvent().getMessageId().get();
 
 
         if (args.isEmpty()) {
-            final String messageId = event.getMessageEvent().getMessageId().get();
             chat.sendMessage(channel, "/me hugs back crroolHug", null, messageId);
             return;
         }
@@ -47,10 +47,10 @@ public class HugCommand extends AbstractCommand {
         final String target = args.get(0);
 
         if (CUTIE.matcher(target).matches()) {
-            chat.sendMessage(channel, "/me crroolDuncteHug " + target);
+            chat.sendMessage(channel, "/me crroolDuncteHug " + target, null, messageId);
             return;
         }
 
-        chat.sendMessage(channel, "/me crroolHug " + target);
+        chat.sendMessage(channel, "/me crroolHug " + target, null, messageId);
     }
 }

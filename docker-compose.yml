@@ -1,0 +1,17 @@
+version: "3.7"
+services:
+    dunctebot:
+        container_name: dunctebot-twtich
+        build:
+            context: .
+        environment:
+            CLIENT_ID: ''
+            OAUTH_TOKEN: ''
+            CHANNELS: 'duncte123'
+            PERSPECTIVE_KEY: ''
+            CLIENT_SECRET: ''
+            # mysql
+            SQL_HOST: ''
+            SQL_DB: ''
+            SQL_USER: ''
+            SQL_PASS: ''

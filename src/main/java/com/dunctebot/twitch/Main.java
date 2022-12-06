@@ -36,6 +36,7 @@ public class Main {
     private final OAuth2Credential credential;
 
     private Main() {
+        // TODO: https://dev.twitch.tv/docs/authentication/getting-tokens-oauth#oauth-client-credentials-flow
         // scopes: chat:read chat:edit channel:moderate whispers:read whispers:edit channel_editor
         // token gen: https://twitchapps.com/tokengen/
         
@@ -69,9 +70,16 @@ public class Main {
         for (final String channel : channels) {
             chat.joinChannel(channel);
         }
+
+        new StayHydrated(this.client);
     }
 
     public static void main(String[] args) {
+        if (args.length > 0 && "--export-commands".equals(args[0])) {
+            new CommandExporter();
+            return;
+        }
+
         LoggerFactory.getLogger(Main.class).info("Booting bot");
 
         new Main();
