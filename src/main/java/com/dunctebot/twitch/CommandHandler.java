@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CommandHandler {
-    public static final String PREFIX = "!!";
+    public static final String PREFIX = "!";
 
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
