@@ -25,10 +25,10 @@ import com.github.twitch4j.common.enums.CommandPermission;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RaffleCommand extends AbstractCommand {
     private final Random random = ThreadLocalRandom.current();
-    private final Map<String, ScheduledFuture<?>> futureMap = new ConcurrentHashMap<>();
     // Using a set to prevent duplicates
     protected final Map<String, Set<String>> raffles = new ConcurrentHashMap<>();
     // announce every 15 seconds
@@ -63,7 +63,9 @@ public class RaffleCommand extends AbstractCommand {
         this.raffles.put(channel, new HashSet<>());
         this.countdownMap.put(channel, 60);
 
-        var future = this.scheduler.scheduleAtFixedRate(() -> {
+        final AtomicReference<ScheduledFuture<?>> ref = new AtomicReference<>();
+
+        final var future = this.scheduler.scheduleAtFixedRate(() -> {
             try {
                 // TODO: keep this map?
                 final int value = this.countdownMap.get(channel) - 15;
@@ -71,11 +73,7 @@ public class RaffleCommand extends AbstractCommand {
                 if (value <= 0) {
                     this.countdownMap.remove(channel);
                     final Set<String> names = this.raffles.get(channel);
-
-                    if (futureMap.containsKey(channel)) {
-                        futureMap.get(channel).cancel(true);
-                        futureMap.remove(channel);
-                    }
+                    ref.get().cancel(true);
 
                     chat.sendMessage(channel, "crroolClap Congrats to @" + this.getRandom(names) + " for winning this raffle! crroolClap");
                 } else {
@@ -87,7 +85,7 @@ public class RaffleCommand extends AbstractCommand {
             }
         }, 15L, 15L, TimeUnit.SECONDS);
 
-        futureMap.put(channel, future);
+        ref.set(future);
     }
 
     // https://stackoverflow.com/questions/124671/picking-a-random-element-from-a-set
