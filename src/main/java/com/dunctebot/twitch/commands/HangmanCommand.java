@@ -942,6 +942,118 @@ public class HangmanCommand extends AbstractCommand {
         "Glastrier",
         "Spectrier",
         "Calyrex",
+        "Wyrdeer",
+        "Kleavor",
+        "Ursaluna",
+        "Basculegion",
+        "Sneasler",
+        "Overquil",
+        "Enamorous",
+        "Sprigatito",
+        "Floragato",
+        "Moewscarade",
+        "Fuecoco",
+        "Crocolar",
+        "Skeledirge",
+        "Quaxly",
+        "Quaxwell",
+        "Quaquavel",
+        "Lechonk",
+        "Oinklogne",
+        "Tarountula",
+        "Spidops",
+        "Nymble",
+        "Lokix",
+        "Pawmi",
+        "Pawmo",
+        "Pawmot",
+        "Tandemaus",
+        "Maushold",
+        "Fidough",
+        "Dachsbun",
+        "Smoliv",
+        "Dolliv",
+        "Arboliva",
+        "Squarkability",
+        "Nacle",
+        "Naclstack",
+        "Garganacl",
+        "Charcadet",
+        "Armarouge",
+        "Ceruledge",
+        "Tadbulb",
+        "Bellibolt",
+        "Wattrel",
+        "Kilowattrel",
+        "Maschiff",
+        "Mabosstiff",
+        "Shroodle",
+        "Grafaiai",
+        "Bramblin",
+        "Brambleghast",
+        "Toadscool",
+        "Toadscruel",
+        "Klawf",
+        "Capsakid",
+        "Scovillain",
+        "Rellor",
+        "Rabsca",
+        "Flittle",
+        "Espathra",
+        "Tinkatink",
+        "Tinkatuff",
+        "Tinkaton",
+        "Wiglett",
+        "Wugtrio",
+        "Bombirdier",
+        "Finizen",
+        "Palafin",
+        "Varoom",
+        "Revavroom",
+        "Cyclizar",
+        "Orthworm",
+        "Glimmet",
+        "Glimmora",
+        "Greavard",
+        "Houndstone",
+        "Flamigo",
+        "Cetoddle",
+        "Cetitan",
+        "Veluza",
+        "Dondozo",
+        "Tatsugiri",
+        "Annihilape",
+        "Clodsire",
+        "Farigiraf",
+        "Dudunsparce",
+        "Kingambit",
+        "Great Tusk",
+        "Scream Tail",
+        "Brute Bonnet",
+        "Flutter Mane",
+        "Slither Wing",
+        "Sandy Shocks",
+        "Iron Treads",
+        "Iron Bundle",
+        "Iron Hands",
+        "Iron Jugulis",
+        "Iron Moth",
+        "Iron Thorns",
+        "Frigibax",
+        "Artibax",
+        "Baxcalibur",
+        "Gimmighoul",
+        "Gholdengo",
+        "Wo-Chien",
+        "Chein-Pao",
+        "Ting-Lu",
+        "Chi-Yu",
+        "Roaring Moon",
+        "Iron Valiant",
+        "Koraidon",
+        "Miraidon",
+        "Walking Wake",
+        "Iron Leaves",
     };
     /// </editor-fold>
 
@@ -953,6 +1065,7 @@ public class HangmanCommand extends AbstractCommand {
         this.eastereggs.put("Shuckle", "(but actually a ditto)");
         this.eastereggs.put("Clefairy", "with a gun");
         this.eastereggs.put("Lanturn", "AKA service fish");
+        this.eastereggs.put("Stufful", "AKA best boy!");
     }
 
     @Override
@@ -967,15 +1080,17 @@ public class HangmanCommand extends AbstractCommand {
                 return;
             }
 
-            if ("cheat".equals(args.get(0))) {
+            // Broke
+            /*if ("cheat".equals(args.get(0))) {
                 // :P
                 this.client.getChat().sendPrivateMessage(event.getUser().getName(), "the word");
                 event.reply(chat, "I've DM'd you the word");
                 return;
-            }
+            }*/
         }
 
         if (this.onCooldown.contains(channelName)) {
+            event.reply(chat, "Hangman is currently on cooldown!");
             return;
         }
 
@@ -1051,37 +1166,30 @@ public class HangmanCommand extends AbstractCommand {
             return this.hangman.pkmn(word);
         }
 
-        private int countUnderscores(String withSpotsLeft) {
-            int undrescores = 0;
-
-            for (char c : withSpotsLeft.toCharArray()) {
-                if (c == '_') {
-                    undrescores++;
-                }
-            }
-
-            return undrescores;
+        private long countUnderscores(String withSpotsLeft) {
+            return withSpotsLeft.chars().filter(c -> ((char) c) == '_').count();
         }
 
+        // Remember, upper bound is exclusive
         private int getScore(String wordWithSpotsLeft) {
-            final int undrescores = countUnderscores(wordWithSpotsLeft);
+            final long undrescores = countUnderscores(wordWithSpotsLeft);
             final ThreadLocalRandom rng = ThreadLocalRandom.current();
 
             // lucky guess lol
             if (undrescores == wordWithSpotsLeft.length()) {
-                return rng.nextInt(151, 500);
+                return rng.nextInt(400, 601);
             }
 
-            if (undrescores >= 10) {
-                return rng.nextInt(100, 151);
+            if (undrescores >= 8) {
+                return rng.nextInt(150, 301);
             }
 
-            if (undrescores >= 5) {
-                return rng.nextInt(50, 100);
+            if (undrescores >= 4) {
+                return rng.nextInt(75, 151);
             }
 
             if (undrescores >= 2) {
-                return rng.nextInt(15, 50);
+                return rng.nextInt(50, 76);
             }
 
             return rng.nextInt(1, 15);
@@ -1116,7 +1224,7 @@ public class HangmanCommand extends AbstractCommand {
                     final int points = getScore(display);
 
                     this.database.addPoints(event.getUser().getId(), userName, points);
-                    event.reply(chat, "Correct, the pokemon was %s! crroolHug you earned %d points!".formatted(pkmn(nonLowerWord), points));
+                    event.reply(chat, "Correct, the pokemon was %s! crroolHug you earned %d points! (check !leaderboard for your current points)".formatted(pkmn(nonLowerWord), points));
                     this.hangman.resetGame(channelName, true);
                 } else {
                     blocks.add(userName);
@@ -1144,7 +1252,7 @@ public class HangmanCommand extends AbstractCommand {
 
                 this.database.addPoints(event.getUser().getId(), userName, points);
                 event.reply(chat, "You won! crroolWee");
-                event.reply(chat, "You guessed that the pokemon was " + pkmn(nonLowerWord) + " and earned " + points + " points!");
+                event.reply(chat, "You guessed that the pokemon was " + pkmn(nonLowerWord) + " and earned " + points + " points! (check !leaderboard for your current points)");
 
                 this.hangman.resetGame(channelName, true);
                 return;

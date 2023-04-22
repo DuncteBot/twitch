@@ -28,6 +28,7 @@ import java.util.concurrent.*;
 
 public class RaffleCommand extends AbstractCommand {
     private final Random random = ThreadLocalRandom.current();
+    private final Map<String, ScheduledFuture<?>> futureMap = new ConcurrentHashMap<>();
     // Using a set to prevent duplicates
     protected final Map<String, Set<String>> raffles = new ConcurrentHashMap<>();
     // announce every 15 seconds
@@ -50,7 +51,6 @@ public class RaffleCommand extends AbstractCommand {
         }
 
         final String channel = event.getChannel().getName();
-        final String messageId = event.getMessageEvent().getMessageId().get();
         final TwitchChat chat = event.getTwitchChat();
 
         if (this.raffles.containsKey(channel)) {
@@ -63,25 +63,43 @@ public class RaffleCommand extends AbstractCommand {
         this.raffles.put(channel, new HashSet<>());
         this.countdownMap.put(channel, 60);
 
-        this.scheduler.scheduleAtFixedRate(() -> {
-            // TODO: keep this map?
-            final int value = this.countdownMap.get(channel) - 15;
+        var future = this.scheduler.scheduleAtFixedRate(() -> {
+            try {
+                // TODO: keep this map?
+                final int value = this.countdownMap.get(channel) - 15;
 
-            if (value <= 0) {
-                this.countdownMap.remove(channel);
-                final Set<String> names = this.raffles.get(channel);
+                if (value <= 0) {
+                    this.countdownMap.remove(channel);
+                    final Set<String> names = this.raffles.get(channel);
 
-                chat.sendMessage(channel, "crroolClap Congrats to @" + this.getRandom(names) + " for winning this raffle! crroolClap");
-            } else {
-                this.countdownMap.put(channel, value);
-                chat.sendMessage(channel, "crroolHappy There are " + value + " seconds left! Type !join to join crroolPray");
+                    if (futureMap.containsKey(channel)) {
+                        futureMap.get(channel).cancel(true);
+                        futureMap.remove(channel);
+                    }
+
+                    chat.sendMessage(channel, "crroolClap Congrats to @" + this.getRandom(names) + " for winning this raffle! crroolClap");
+                } else {
+                    this.countdownMap.put(channel, value);
+                    chat.sendMessage(channel, "crroolHappy Raffle starts in " + value + " seconds! Type !join to join crroolPray");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }, 15L, 15L, TimeUnit.SECONDS);
+
+        futureMap.put(channel, future);
     }
+
     // https://stackoverflow.com/questions/124671/picking-a-random-element-from-a-set
     private String getRandom(Set<String> names) {
         final int search = this.random.nextInt(names.size());
         int i = 0;
+
+        // TODO figure out how well this works
+        /*return names.stream()
+            .skip(Math.max(0, search - 1))
+            .findFirst()
+            .orElse(null); // how?*/
 
         for (final String name : names) {
             if (i == search) {

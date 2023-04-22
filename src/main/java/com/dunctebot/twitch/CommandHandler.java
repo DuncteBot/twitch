@@ -18,10 +18,7 @@
 
 package com.dunctebot.twitch;
 
-import com.dunctebot.twitch.commands.CuteCommand;
-import com.dunctebot.twitch.commands.HangmanCommand;
-import com.dunctebot.twitch.commands.HugCommand;
-import com.dunctebot.twitch.commands.RaffleCommand;
+import com.dunctebot.twitch.commands.*;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CommandHandler {
-    public static final String PREFIX = "!";
+    public static final String PREFIX = "!!";
 
     private final Map<String, AbstractCommand> commands = new HashMap<>();
 
@@ -44,6 +41,7 @@ public class CommandHandler {
         this.addCommand(hangmanCommand);
         this.addCommand(new HangmanCommand.GuessCommand(hangmanCommand));
         this.addCommand(new HugCommand());
+        this.addCommand(new LeaderboardCommand());
         final RaffleCommand raffleCommand = new RaffleCommand();
         this.addCommand(raffleCommand);
         this.addCommand(new RaffleCommand.JoinCommand(raffleCommand));
